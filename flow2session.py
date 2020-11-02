@@ -9,7 +9,7 @@ def data_read(file_name):
     #print(df)
     #df = df.drop("No.")
     df = df.dropna(axis=0) ## 결측행 삭제
-    df = df.reset_index() ## 행번호 추
+    df = df.reset_index() ## 행번호 추가
     del df["index"], df["No."]
     time = df[["Time"]]
     src_ip = df[["Source"]]
@@ -45,19 +45,22 @@ def data_read(file_name):
         if "[SYN]" in info["Info"][n]:
             start_pkt["Start Packet"][n] = 1
             stop_bit = 0
-            #if n < 5000:
             if n >0:
                 for i in range(n,0,-1):
-                    if (dst_ip["Destination"][n] in info["Info"][i]) and ("Standard query response" in info["Info"][i]):
+                    if (src_ip["Source"][n] == dst_ip["Destination"][i]) and (dst_ip["Destination"][n] in info["Info"][i]) and ("Standard query response" in info["Info"][i]):
                         no_url["NO URL"][n] = 0
                         m=n-i
-                        if m>5000:
+                        if m>1000:
                             print(m)
                         break
-            #elif n >=5000:
-            #    for i in range(n-3000,n):
-            #        if (dst_ip["Destination"][n] in info["Info"][i]) and ("Standard query response" in info["Info"][i]):
-            #            no_url["NO URL"][n] = 0
+            elif n >=5000:
+                for i in range(n,n-5000,-1):
+                    if (src_ip["Source"][n] == dst_ip["Destination"][i]) and (dst_ip["Destination"][n] in info["Info"][i]) and ("Standard query response" in info["Info"][i]):
+                        no_url["NO URL"][n] = 0
+                        m = n - i
+                        if m > 1000:
+                            print(m)
+                        break
             for i in range(n,total_length):
                 if (dst_ip_port["Destination_ip_port"][n] == dst_ip_port["Destination_ip_port"][i] and stop_bit == 0):
                     send_byte["Send Byte"][n] = send_byte["Send Byte"][n] + length["Length"][i]
@@ -84,4 +87,4 @@ def data_read(file_name):
 if __name__ == '__main__':
     file_name = "meta.csv"
     df = data_read(file_name)
-    df.to_csv("temp.csv")
+    df.to_csv("session_output.csv")
