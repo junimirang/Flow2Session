@@ -1,4 +1,5 @@
 import pandas as pd
+import math
 #import numpy as np
 
 
@@ -40,8 +41,8 @@ def data_read(file_name):
     receive_byte = df[["Receive Byte"]]
     df[["Duration"]] = 0.0
     duration = df[["Duration"]]
-    #total_length = 3000
-    total_length = len(info)
+    total_length = 3000
+    #total_length = len(info)
     n=0
     while n < total_length:
         if n%1000 == 0:
@@ -98,7 +99,9 @@ def data_read(file_name):
     del df["index"]
     df["LABEL"] = "UNKNOWN"
     dst_port = df[["Destination Port"]]
-    for i in range(len(df["Info"])):
+    df["count_total_connect"] = 0
+    total_length = len(df["Info"])
+    for i in range(total_length):
         if dst_port["Destination Port"][i] == 21:
             df["LABEL"][i] = "FTP"
         if dst_port["Destination Port"][i] == 22:
@@ -117,8 +120,21 @@ def data_read(file_name):
                 df["LABEL"][i] = "HTTPS"
         if dst_port["Destination Port"][i] == 3389:
                 df["LABEL"][i] = "RDP"
-    df["Destination Port"] = dst_port
+        if i == 0:
+            for j in range(i, total_length):
+                if df["Destination"][j] == df["Destination"][i]:
+                    df["count_total_connect"][i] = df["count_total_connect"][i] + 1
+        if i > 0:
+            for j in range(i-1,0,-1):
+                if df["Destination"][i] == df["Destination"][j]:
+                    df["count_total_connect"][i] = df["count_total_connect"][j]
+            if df["count_total_connect"][i] == 0:
+                for j in range(i,total_length):
+                    if df["Destination"][j] == df["Destination"][i]:
+                        df["count_total_connect"][i] =df["count_total_connect"][i] + 1
 
+    df["Destination Port"] = dst_port
+    df["ratio_trans_recieve"] = df["Send Byte"] / df["Receive Byte"]
     return df
 
 #def destination_count(df):
@@ -133,6 +149,16 @@ def data_read(file_name):
  #   x = df[["Source", "Destination"]]
   #  total_length = len(x)
    # for i in range(total_length):
+
+
+    df["log_time_taken"] = round(math.log10(df["Duration"]), 2)
+    df["log_cs_byte"] = round(math.log10(df["Send Byte"]),2)
+    df["log_ratio_trans_receive"] = round(math.log2(df["ratio_trans_recieve"]), 2)
+
+    df["log_count_connect_IP"] = round(math.log2(df["count_connect_IP"]), 2)
+    df["log_count_total_connect"] = round(math.log2(df["count_total_connect"]), 2)
+    df["log_avg_count_connect"] = round(math.log10(df["avg_count_connect"]), 2)
+    df["log_transmit_speed_BPS"] = round(math.log2(df["transmit_speed_BPS"] + 1), 2)
 
     # 동일 목적지에 접속한 출발지 IPs
 
