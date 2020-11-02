@@ -39,10 +39,10 @@ def data_read(file_name):
     send_byte = df[["Send Byte"]]
     df["Receive Byte"] = 0
     receive_byte = df[["Receive Byte"]]
-    df[["Duration"]] = 0.0
+    df["Duration"] = 0.0
     duration = df[["Duration"]]
-    total_length = 3000
-    #total_length = len(info)
+    #total_length = 3000
+    total_length = len(info)
     n=0
     while n < total_length:
         if n%1000 == 0:
@@ -92,14 +92,24 @@ def data_read(file_name):
     df["Send Byte"] = send_byte
     df["Receive Byte"] = receive_byte
     df["Duration"] = duration
+    df["log_time_taken"] = 0.0
+    df["log_cs_byte"] = 0.0
+    df["log_ratio_trans_receive"] = 0.0
+    df["log_count_connect_IP"] = 0.0
+    df["log_count_total_connect"] = 0.0
+    df["log_avg_count_connect"] = 0.0
+    df["log_transmit_speed_BPS"] = 0.0
+
     #start_pkt 이 아닌 열 지우기
     idx_start_pkt = df[df["Start Packet"] == 0].index
     df = df.drop(idx_start_pkt)
     df = df.reset_index()  ## 행번호 추가
     del df["index"]
+    df["ratio_trans_recieve"] = df["Send Byte"] / df["Receive Byte"]
     df["LABEL"] = "UNKNOWN"
     dst_port = df[["Destination Port"]]
     df["count_total_connect"] = 0
+    df["count_connect_IP"] = 0
     total_length = len(df["Info"])
     for i in range(total_length):
         if dst_port["Destination Port"][i] == 21:
@@ -120,24 +130,53 @@ def data_read(file_name):
                 df["LABEL"][i] = "HTTPS"
         if dst_port["Destination Port"][i] == 3389:
                 df["LABEL"][i] = "RDP"
+
         if i == 0:
-            for j in range(i, total_length):
+            for j in range(total_length):
                 if df["Destination"][j] == df["Destination"][i]:
                     df["count_total_connect"][i] = df["count_total_connect"][i] + 1
-        if i > 0:
-            for j in range(i-1,0,-1):
+
+            for j in range(total_length):
+                if df["Destination"][j] == df["Destination"][i] and df["Source"][j] != df["Source"][i]:
+                    df["count_connect_IP"][i] = df["count_connect_IP"][i] + 1
+
+        if i >= 1:
+            for j in range(i,-1,-1):
                 if df["Destination"][i] == df["Destination"][j]:
                     df["count_total_connect"][i] = df["count_total_connect"][j]
+                    df["count_connect_IP"][i] = df["count_connect_IP"][j]
+
             if df["count_total_connect"][i] == 0:
                 for j in range(i,total_length):
                     if df["Destination"][j] == df["Destination"][i]:
                         df["count_total_connect"][i] =df["count_total_connect"][i] + 1
+                for j in range(i,total_length):
+                    if df["Destination"][j] == df["Destination"][i] and df["Source"][j] != df["Source"][i]:
+                        df["count_connect_IP"][i] = df["count_connect_IP"][i] + 1
 
-    df["Destination Port"] = dst_port
-    df["ratio_trans_recieve"] = df["Send Byte"] / df["Receive Byte"]
+    df["avg_count_connect"] = df["count_total_connect"] / df["count_connect_IP"]
+    df["transmit_speed_BPS"] = df["Send Byte"] / df["Duration"]
+
+
+    for i in range(total_length):
+        k1 = df["Duration"][i]
+        df["log_time_taken"][i] = round(math.log10(k1), 2)
+        k2 = df["Send Byte"][i]
+        df["log_cs_byte"][i] = round(math.log10(k2), 2)
+        k3 = df["ratio_trans_recieve"][i]
+        df["log_ratio_trans_receive"][i] = round(math.log2(k3), 2)
+        k4 = df["count_connect_IP"][i]
+        df["log_count_connect_IP"][i] = round(math.log2(k4), 2)
+        k5 = df["count_total_connect"][i]
+        df["log_count_total_connect"][i] = round(math.log2(k5), 2)
+        k6 = df["avg_count_connect"][i]
+        df["log_avg_count_connect"][i] = round(math.log10(k6), 2)
+        k7 = df["transmit_speed_BPS"][i]
+        df["log_transmit_speed_BPS"][i] = round(math.log2(k7 + 1), 2)
+
     return df
 
-#def destination_count(df):
+
 #    # ratio_trans_receive	no_url	count_total_connect_1week	count_connect_IP_1week	log_time_taken	log_trans_receive(ratio+1)	log_ratio_count	time_taken_count	LABEL
 #
 #   X = df[["log_count_total_connect", "log_cs_byte", "log_transmit_speed_BPS","log_count_connect_IP", "log_avg_count_connect", "Business.time"]]
@@ -151,19 +190,11 @@ def data_read(file_name):
    # for i in range(total_length):
 
 
-    df["log_time_taken"] = round(math.log10(df["Duration"]), 2)
-    df["log_cs_byte"] = round(math.log10(df["Send Byte"]),2)
-    df["log_ratio_trans_receive"] = round(math.log2(df["ratio_trans_recieve"]), 2)
 
-    df["log_count_connect_IP"] = round(math.log2(df["count_connect_IP"]), 2)
-    df["log_count_total_connect"] = round(math.log2(df["count_total_connect"]), 2)
-    df["log_avg_count_connect"] = round(math.log10(df["avg_count_connect"]), 2)
-    df["log_transmit_speed_BPS"] = round(math.log2(df["transmit_speed_BPS"] + 1), 2)
 
     # 동일 목적지에 접속한 출발지 IPs
 
 if __name__ == '__main__':
     file_name = "meta.csv"
     df = data_read(file_name)
-    #df = destination_count(df)
     df.to_csv("temp1.csv")
