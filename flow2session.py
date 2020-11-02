@@ -1,5 +1,5 @@
 import pandas as pd
-import numpy as np
+#import numpy as np
 
 
 def data_read(file_name):
@@ -16,8 +16,10 @@ def data_read(file_name):
     dst_ip = df[["Destination"]]
     protocol = df[["Protocol"]]
     length = df[["Length"]]
-    src_port = df[["Source Port"]]
-    dst_port = df[["Destination Port"]]
+    df["Source Port"] = df["Source Port"].astype('int')
+    df["Destination Port"] = df["Destination Port"].astype('int')
+    #src_port = df[["Source Port"]]
+    #dst_port = df[["Destination Port"]]
     info = df[["Info"]]
     ## pandas 열 추가, 삭제
     ## https://m.blog.naver.com/PostView.nhn?blogId=rising_n_falling&logNo=221631637822&proxyReferer=https:%2F%2Fwww.google.com%2F
@@ -30,13 +32,15 @@ def data_read(file_name):
     print(len(info))
     df["Start Packet"] = 0
     start_pkt = df[["Start Packet"]]
-    df["NO URL"] = 1
-    no_url = df[["NO URL"]]
+    df["no_url"] = 1
+    no_url = df[["no_url"]]
     df["Send Byte"] = 0
     send_byte = df[["Send Byte"]]
     df["Receive Byte"] = 0
     receive_byte = df[["Receive Byte"]]
-    #total_length = 15000
+    df[["Duration"]] = 0.0
+    duration = df[["Duration"]]
+    #total_length = 3000
     total_length = len(info)
     n=0
     while n < total_length:
@@ -48,7 +52,7 @@ def data_read(file_name):
             if n >0:
                 for i in range(n,0,-1):
                     if (src_ip["Source"][n] == dst_ip["Destination"][i]) and (dst_ip["Destination"][n] in info["Info"][i]) and ("Standard query response" in info["Info"][i]):
-                        no_url["NO URL"][n] = 0
+                        no_url["no_url"][n] = 0
                         m=n-i
                         if m>1000:
                             print(m)
@@ -56,7 +60,7 @@ def data_read(file_name):
             elif n >=5000:
                 for i in range(n,n-5000,-1):
                     if (src_ip["Source"][n] == dst_ip["Destination"][i]) and (dst_ip["Destination"][n] in info["Info"][i]) and ("Standard query response" in info["Info"][i]):
-                        no_url["NO URL"][n] = 0
+                        no_url["no_url"][n] = 0
                         m = n - i
                         if m > 1000:
                             print(m)
@@ -64,27 +68,76 @@ def data_read(file_name):
             for i in range(n,total_length):
                 if (dst_ip_port["Destination_ip_port"][n] == dst_ip_port["Destination_ip_port"][i] and stop_bit == 0):
                     send_byte["Send Byte"][n] = send_byte["Send Byte"][n] + length["Length"][i]
+                    j=i
                     if "FIN" in info["Info"][i]:
                         stop_bit = 1
                 elif (dst_ip_port["Destination_ip_port"][n] == dst_ip_port["Destination_ip_port"][i] and stop_bit == 1):
                     send_byte["Send Byte"][n] = send_byte["Send Byte"][n] + length["Length"][i]
+                    j=i
                     break
                 elif (dst_ip_port["Destination_ip_port"][n] == src_ip_port["Source_ip_port"][i] and stop_bit == 0):
                     receive_byte["Receive Byte"][n] = receive_byte["Receive Byte"][n] + length["Length"][i]
+                    j=i
                     if "FIN" in info["Info"][i]:
                         stop_bit = 1
                 elif (dst_ip_port["Destination_ip_port"][n] == src_ip_port["Source_ip_port"][i] and stop_bit == 1):
                     receive_byte["Receive Byte"][n] = receive_byte["Receive Byte"][n] + length["Length"][i]
+                    j=i
                     break
+            duration["Duration"][n] = time["Time"][j] - time["Time"][n]
         n = n+1
-    df["NO URL"] = no_url
-    df["Start Packet"] = 0
+    df["no_url"] = no_url
     df["Start Packet"] = start_pkt
     df["Send Byte"] = send_byte
     df["Receive Byte"] = receive_byte
+    df["Duration"] = duration
+    #start_pkt 이 아닌 열 지우기
+    idx_start_pkt = df[df["Start Packet"] == 0].index
+    df = df.drop(idx_start_pkt)
+    df = df.reset_index()  ## 행번호 추가
+    del df["index"]
+    df["LABEL"] = "UNKNOWN"
+    dst_port = df[["Destination Port"]]
+    for i in range(len(df["Info"])):
+        if dst_port["Destination Port"][i] == 21:
+            df["LABEL"][i] = "FTP"
+        if dst_port["Destination Port"][i] == 22:
+            df["LABEL"][i] = "SSH"
+        if dst_port["Destination Port"][i] == 23:
+            df["LABEL"][i] = "TELNET"
+        if dst_port["Destination Port"][i] == 25:
+            df["LABEL"][i] = "SMTP"
+        if dst_port["Destination Port"][i] == 53:
+            df["LABEL"][i] = "DNS"
+        if dst_port["Destination Port"][i] == 80:
+            df["LABEL"][i] = "HTTP"
+        if dst_port["Destination Port"][i] == 123:
+            df["LABEL"][i] = "NTP"
+        if dst_port["Destination Port"][i] == 443:
+                df["LABEL"][i] = "HTTPS"
+        if dst_port["Destination Port"][i] == 3389:
+                df["LABEL"][i] = "RDP"
+    df["Destination Port"] = dst_port
+
     return df
+
+#def destination_count(df):
+#    # ratio_trans_receive	no_url	count_total_connect_1week	count_connect_IP_1week	log_time_taken	log_trans_receive(ratio+1)	log_ratio_count	time_taken_count	LABEL
+#
+#   X = df[["log_count_total_connect", "log_cs_byte", "log_transmit_speed_BPS","log_count_connect_IP", "log_avg_count_connect", "Business.time"]]
+#   Y = df[["LABEL"]]
+#   Z = df[["log_time_taken"]]
+#   K = df[["no_url"]]
+#   L = df[["log_ratio_trans_receive"]]
+
+ #   x = df[["Source", "Destination"]]
+  #  total_length = len(x)
+   # for i in range(total_length):
+
+    # 동일 목적지에 접속한 출발지 IPs
 
 if __name__ == '__main__':
     file_name = "meta.csv"
     df = data_read(file_name)
-    df.to_csv("session_output.csv")
+    #df = destination_count(df)
+    df.to_csv("temp1.csv")
