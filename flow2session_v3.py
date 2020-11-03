@@ -69,6 +69,7 @@ def data_read(file_name):
                     break
 
             # Session Reassembling
+            j=0
             for i in range(n, total_length):
                 if (dst_ip_port["Destination_ip_port"][n] == dst_ip_port["Destination_ip_port"][i] and stop_bit == 0):
                     send_byte["Send Byte"][n] = send_byte["Send Byte"][n] + length["Length"][i]
