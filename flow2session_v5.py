@@ -141,7 +141,8 @@ def data_read(file_name):
     idx_rdp = df[df["Destination Port"] == 3389].index
     df["LABEL"][idx_rdp] = "RDP"
 
-
+    total_length = len(df["Info"])
+    for i in range(total_length):
         if i == 0:
             for j in range(total_length):
                 if df["Destination"][j] == df["Destination"][i]:
