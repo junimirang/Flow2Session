@@ -43,8 +43,8 @@ def data_read(file_name):
     receive_byte = df[["Receive Byte"]]
     df["Duration"] = 0.0
     duration = df[["Duration"]]
-    total_length = 3000
-    #total_length = len(info)
+    #total_length = 3000
+    total_length = len(info)
 
     idx_not_dns = df[df["Source Port"] != 53].index
     df_dns = df.drop(idx_not_dns)
@@ -187,4 +187,4 @@ def data_read(file_name):
 if __name__ == '__main__':
     file_name = "meta.csv"
     df = data_read(file_name)
-    df.to_csv("temp1.csv")
+    df.to_csv("session_output.csv")
