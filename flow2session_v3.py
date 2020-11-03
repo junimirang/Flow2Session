@@ -54,13 +54,13 @@ def data_read(file_name):
     print("DNS Length : ",dns_length)
 
 
-    idx_not_FIN = df[~df["Info"].str.contains(pat="FIN")].index   #https://blog.naver.com/wideeyed/221603778414
+    #idx_not_FIN = df[~df["Info"].str.contains(pat="FIN")].index   #https://blog.naver.com/wideeyed/221603778414
     # '~' : not contains
-    df_FIN = df.drop(idx_not_FIN)
-    df_FIN = df_FIN.reset_index()
-    del df_FIN["index"]
-    FIN_length = len(df_FIN)
-    print("FIN Length : ", FIN_length)
+    #df_FIN = df.drop(idx_not_FIN)
+    #df_FIN = df_FIN.reset_index()
+    #del df_FIN["index"]
+    #FIN_length = len(df_FIN)
+    #print("FIN Length : ", FIN_length)
 
     n = 0
     while n < total_length:
@@ -79,8 +79,8 @@ def data_read(file_name):
             # FIN Packet Check
              #1. FIN packet filtering
              #2. if FIN packet exists, run the sequence.
-            for i in range(FIN_length):
-                if (src_ip["Soure"][n] == df_FIN["Source"][i] or src_ip["Soure"][n] == df_FIN["Source"][i]):
+            #for i in range(FIN_length):
+               # if (src_ip["Soure"][n] == df_FIN["Source"][i] or src_ip["Soure"][n] == df_FIN["Source"][i]):
 
 
             # Session Reassembling
