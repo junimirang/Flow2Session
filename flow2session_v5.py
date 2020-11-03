@@ -1,7 +1,7 @@
 import pandas as pd
 import math
 import datetime
-
+import sys
 
 
 # import numpy as np
@@ -45,16 +45,15 @@ def data_read(file_name):
     receive_byte = df[["Receive Byte"]]
     df["Duration"] = 0.0
     duration = df[["Duration"]]
-    total_length = 3000
-    #total_length = len(info)
+    #total_length = 3000
+    total_length = len(info)
 
     idx_not_dns = df[df["Source Port"] != 53].index
     df_dns = df.drop(idx_not_dns)
     df_dns = df_dns.reset_index()  ## 행번호 추가
     del df_dns["index"]
     dns_length = len(df_dns)
-    print("DNS Length : ",dns_length)
-
+    print("DNS Length : ", dns_length)
 
     n = 0
     while n < total_length:
@@ -66,12 +65,13 @@ def data_read(file_name):
             stop_bit = 0
             # DNS Check
             for i in range(dns_length):
-                if (src_ip["Source"][n] == df_dns["Destination"][i]) and (dst_ip["Destination"][n] in df_dns["Info"][i]):
+                if (src_ip["Source"][n] == df_dns["Destination"][i]) and (
+                        dst_ip["Destination"][n] in df_dns["Info"][i]):
                     no_url["no_url"][n] = 0
                     break
 
             # Session Reassembling
-            j=0
+            j = 0
             for i in range(n, total_length):
                 if (dst_ip_port["Destination_ip_port"][n] == dst_ip_port["Destination_ip_port"][i] and stop_bit == 0):
                     send_byte["Send Byte"][n] = send_byte["Send Byte"][n] + length["Length"][i]
@@ -91,10 +91,10 @@ def data_read(file_name):
                     receive_byte["Receive Byte"][n] = receive_byte["Receive Byte"][n] + length["Length"][i]
                     j = i
                     break
-                #if (i > 10000):
-                    #print("Ooooops", i)
+                # if (i > 10000):
+                # print("Ooooops", i)
             duration["Duration"][n] = time["Time"][j] - time["Time"][n]
-        #print(n)
+        # print(n)
         n = n + 1
 
     df["no_url"] = no_url
@@ -150,7 +150,7 @@ def data_read(file_name):
                     df["count_connect_IP"][i] = df["count_connect_IP"][i] + 1
 
         if i >= 1:
-            for j in range(i-1, -1, -1):
+            for j in range(i - 1, -1, -1):
                 if df["Destination"][i] == df["Destination"][j]:
                     df["count_total_connect"][i] = df["count_total_connect"][j]
                     df["count_connect_IP"][i] = df["count_connect_IP"][j]
@@ -158,7 +158,7 @@ def data_read(file_name):
             if df["count_total_connect"][i] == 0:
                 df["count_total_connect"][i] = 1
                 df["count_connect_IP"][i] = 1
-                for j in range(i+1, total_length):
+                for j in range(i + 1, total_length):
                     if df["Destination"][j] == df["Destination"][i]:
                         df["count_total_connect"][i] = df["count_total_connect"][i] + 1
                     if df["Destination"][j] == df["Destination"][i] and df["Source"][j] != df["Source"][i]:
@@ -185,11 +185,13 @@ def data_read(file_name):
 
     return df
 
+
 if __name__ == '__main__':
-    
+    #sys.stdout = open('flow2session_output.csv', 'w')       # Print as file #
     now = datetime.datetime.now()
-    print("Start Time : ",now)
+    print("Start Time : ", now)
     file_name = "meta.csv"
     df = data_read(file_name)
     df.to_csv("session_output.csv")
     print("End Time : ", now)
+    #sys.stdout = sys.__stdout__  # End of stdout
