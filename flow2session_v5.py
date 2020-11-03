@@ -2,8 +2,7 @@ import pandas as pd
 import math
 import datetime
 
-now = datetime.datetime.now()
-print("Start Time : ",now)
+
 
 # import numpy as np
 
@@ -187,6 +186,9 @@ def data_read(file_name):
     return df
 
 if __name__ == '__main__':
+    
+    now = datetime.datetime.now()
+    print("Start Time : ",now)
     file_name = "meta.csv"
     df = data_read(file_name)
     df.to_csv("session_output.csv")
