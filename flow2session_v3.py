@@ -43,8 +43,8 @@ def data_read(file_name):
     receive_byte = df[["Receive Byte"]]
     df["Duration"] = 0.0
     duration = df[["Duration"]]
-    # total_length = 3000
-    total_length = len(info)
+    total_length = 3000
+    #total_length = len(info)
 
     idx_not_dns = df[df["Source Port"] != 53].index
     df_dns = df.drop(idx_not_dns)
@@ -53,14 +53,6 @@ def data_read(file_name):
     dns_length = len(df_dns)
     print("DNS Length : ",dns_length)
 
-
-    #idx_not_FIN = df[~df["Info"].str.contains(pat="FIN")].index   #https://blog.naver.com/wideeyed/221603778414
-    # '~' : not contains
-    #df_FIN = df.drop(idx_not_FIN)
-    #df_FIN = df_FIN.reset_index()
-    #del df_FIN["index"]
-    #FIN_length = len(df_FIN)
-    #print("FIN Length : ", FIN_length)
 
     n = 0
     while n < total_length:
@@ -75,13 +67,6 @@ def data_read(file_name):
                 if (src_ip["Source"][n] == df_dns["Destination"][i]) and (dst_ip["Destination"][n] in df_dns["Info"][i]):
                     no_url["no_url"][n] = 0
                     break
-
-            # FIN Packet Check
-             #1. FIN packet filtering
-             #2. if FIN packet exists, run the sequence.
-            #for i in range(FIN_length):
-               # if (src_ip["Soure"][n] == df_FIN["Source"][i] or src_ip["Soure"][n] == df_FIN["Source"][i]):
-
 
             # Session Reassembling
             for i in range(n, total_length):
@@ -103,8 +88,8 @@ def data_read(file_name):
                     receive_byte["Receive Byte"][n] = receive_byte["Receive Byte"][n] + length["Length"][i]
                     j = i
                     break
-                if (i > 10000):
-                    print("Ooooops", i)
+                #if (i > 10000):
+                    #print("Ooooops", i)
             duration["Duration"][n] = time["Time"][j] - time["Time"][n]
         #print(n)
         n = n + 1
@@ -127,7 +112,7 @@ def data_read(file_name):
     df = df.drop(idx_start_pkt)
     df = df.reset_index()  ## 행번호 추가
     del df["index"]
-    df["ratio_trans_recieve"] = df["Send Byte"] / df["Receive Byte"]
+    df["ratio_trans_receive"] = df["Send Byte"] / df["Receive Byte"]
     df["LABEL"] = "UNKNOWN"
     dst_port = df[["Destination Port"]]
     df["count_total_connect"] = 0
@@ -158,22 +143,21 @@ def data_read(file_name):
             for j in range(total_length):
                 if df["Destination"][j] == df["Destination"][i]:
                     df["count_total_connect"][i] = df["count_total_connect"][i] + 1
-
-            for j in range(total_length):
-                if df["Destination"][j] == df["Destination"][i] and df["Source"][j] != df["Source"][i]:
+                if (df["Destination"][j] == df["Destination"][i]) and (df["Source"][j] != df["Source"][i]):
                     df["count_connect_IP"][i] = df["count_connect_IP"][i] + 1
 
         if i >= 1:
-            for j in range(i, -1, -1):
+            for j in range(i-1, -1, -1):
                 if df["Destination"][i] == df["Destination"][j]:
                     df["count_total_connect"][i] = df["count_total_connect"][j]
                     df["count_connect_IP"][i] = df["count_connect_IP"][j]
 
             if df["count_total_connect"][i] == 0:
-                for j in range(i, total_length):
+                df["count_total_connect"][i] = 1
+                df["count_connect_IP"][i] = 1
+                for j in range(i+1, total_length):
                     if df["Destination"][j] == df["Destination"][i]:
                         df["count_total_connect"][i] = df["count_total_connect"][i] + 1
-                for j in range(i, total_length):
                     if df["Destination"][j] == df["Destination"][i] and df["Source"][j] != df["Source"][i]:
                         df["count_connect_IP"][i] = df["count_connect_IP"][i] + 1
 
@@ -185,7 +169,7 @@ def data_read(file_name):
         df["log_time_taken"][i] = round(math.log10(k1), 2)
         k2 = df["Send Byte"][i]
         df["log_cs_byte"][i] = round(math.log10(k2), 2)
-        k3 = df["ratio_trans_recieve"][i]
+        k3 = df["ratio_trans_receive"][i]
         df["log_ratio_trans_receive"][i] = round(math.log2(k3), 2)
         k4 = df["count_connect_IP"][i]
         df["log_count_connect_IP"][i] = round(math.log2(k4), 2)
