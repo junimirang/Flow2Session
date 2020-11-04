@@ -198,7 +198,7 @@ def data_read(file_name):
         df["log_count_total_connect"][i] = round(math.log2(k5), 2)
         df["log_avg_count_connect"][i] = round(math.log10(k6), 2)
         df["log_transmit_speed_BPS"][i] = round(math.log2(k7 + 1), 2)
-        if (df["Time"][i] > 25200) and (df["Time"][i] <= 68400):
+        if (df["Time"][i]  <= 11*3600):   ## 08:00 ~ 19:00
             df["Business.time"][i] = 1
     return df
 
@@ -207,8 +207,20 @@ if __name__ == '__main__':
     # sys.stdout = open('flow2session_output.csv', 'w')       # Print as file #
     now = datetime.datetime.now()
     print("Start Time : ", now)
-    file_name = "meta.csv"
+    file_name = "mon.csv"
     df = data_read(file_name)
-    df.to_csv("session_output.csv")
+    df.to_csv("session_output_mon.csv")
+    file_name = "tue.csv"
+    df = data_read(file_name)
+    df.to_csv("session_output_tue.csv")
+    file_name = "wed.csv"
+    df = data_read(file_name)
+    df.to_csv("session_output_wed.csv")
+    file_name = "thu.csv"
+    df = data_read(file_name)
+    df.to_csv("session_output_thu.csv")
+    file_name = "fri.csv"
+    df = data_read(file_name)
+    df.to_csv("session_output_fri.csv")
     print("End Time : ", now)
     # sys.stdout = sys.__stdout__  # End of stdout
