@@ -167,20 +167,22 @@ def data_read(file_name):
     df["avg_count_connect"] = df["count_total_connect"] / df["count_connect_IP"]
     df["transmit_speed_BPS"] = df["Send Byte"] / df["Duration"]
 
+    df.to_csv("session_output_without_log_calculation.csv")
+    
     for i in range(total_length):
         k1 = df["Duration"][i]
-        df["log_time_taken"][i] = round(math.log10(k1), 2)
         k2 = df["Send Byte"][i]
-        df["log_cs_byte"][i] = round(math.log10(k2), 2)
         k3 = df["ratio_trans_receive"][i]
-        df["log_ratio_trans_receive"][i] = round(math.log2(k3), 2)
         k4 = df["count_connect_IP"][i]
-        df["log_count_connect_IP"][i] = round(math.log2(k4), 2)
         k5 = df["count_total_connect"][i]
-        df["log_count_total_connect"][i] = round(math.log2(k5), 2)
         k6 = df["avg_count_connect"][i]
-        df["log_avg_count_connect"][i] = round(math.log10(k6), 2)
         k7 = df["transmit_speed_BPS"][i]
+        df["log_time_taken"][i] = round(math.log10(k1), 2)
+        df["log_cs_byte"][i] = round(math.log10(k2), 2)
+        df["log_ratio_trans_receive"][i] = round(math.log2(k3), 2)        
+        df["log_count_connect_IP"][i] = round(math.log2(k4), 2)        
+        df["log_count_total_connect"][i] = round(math.log2(k5), 2)        
+        df["log_avg_count_connect"][i] = round(math.log10(k6), 2)        
         df["log_transmit_speed_BPS"][i] = round(math.log2(k7 + 1), 2)
 
     return df
