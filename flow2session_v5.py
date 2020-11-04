@@ -2,8 +2,6 @@ import pandas as pd
 import math
 import datetime
 import sys
-
-
 # import numpy as np
 
 
@@ -45,7 +43,7 @@ def data_read(file_name):
     receive_byte = df[["Receive Byte"]]
     df["Duration"] = 0.0
     duration = df[["Duration"]]
-    #total_length = 3000
+    # total_length = 3000
     total_length = len(info)
 
     idx_not_dns = df[df["Source Port"] != 53].index
@@ -140,6 +138,9 @@ def data_read(file_name):
     idx_rdp = df[df["Destination Port"] == 3389].index
     df["LABEL"][idx_rdp] = "RDP"
 
+    df.to_csv("session_output_without_ip_count.csv")
+    df = df.dropna(axis=0)  ## 결측행 삭제
+
     total_length = len(df["Info"])
     for i in range(total_length):
         if i == 0:
@@ -151,6 +152,8 @@ def data_read(file_name):
 
         if i >= 1:
             for j in range(i - 1, -1, -1):
+                if (j == -1):
+                    break
                 if df["Destination"][i] == df["Destination"][j]:
                     df["count_total_connect"][i] = df["count_total_connect"][j]
                     df["count_connect_IP"][i] = df["count_connect_IP"][j]
@@ -168,7 +171,7 @@ def data_read(file_name):
     df["transmit_speed_BPS"] = df["Send Byte"] / df["Duration"]
 
     df.to_csv("session_output_without_log_calculation.csv")
-    
+
     for i in range(total_length):
         k1 = df["Duration"][i]
         k2 = df["Send Byte"][i]
@@ -179,21 +182,21 @@ def data_read(file_name):
         k7 = df["transmit_speed_BPS"][i]
         df["log_time_taken"][i] = round(math.log10(k1), 2)
         df["log_cs_byte"][i] = round(math.log10(k2), 2)
-        df["log_ratio_trans_receive"][i] = round(math.log2(k3), 2)        
-        df["log_count_connect_IP"][i] = round(math.log2(k4), 2)        
-        df["log_count_total_connect"][i] = round(math.log2(k5), 2)        
-        df["log_avg_count_connect"][i] = round(math.log10(k6), 2)        
+        df["log_ratio_trans_receive"][i] = round(math.log2(k3), 2)
+        df["log_count_connect_IP"][i] = round(math.log2(k4), 2)
+        df["log_count_total_connect"][i] = round(math.log2(k5), 2)
+        df["log_avg_count_connect"][i] = round(math.log10(k6), 2)
         df["log_transmit_speed_BPS"][i] = round(math.log2(k7 + 1), 2)
 
     return df
 
 
 if __name__ == '__main__':
-    #sys.stdout = open('flow2session_output.csv', 'w')       # Print as file #
+    # sys.stdout = open('flow2session_output.csv', 'w')       # Print as file #
     now = datetime.datetime.now()
     print("Start Time : ", now)
     file_name = "meta.csv"
     df = data_read(file_name)
     df.to_csv("session_output.csv")
     print("End Time : ", now)
-    #sys.stdout = sys.__stdout__  # End of stdout
+    # sys.stdout = sys.__stdout__  # End of stdout
