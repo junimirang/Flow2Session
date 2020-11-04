@@ -107,6 +107,8 @@ def data_read(file_name):
     df["log_count_total_connect"] = 0.0
     df["log_avg_count_connect"] = 0.0
     df["log_transmit_speed_BPS"] = 0.0
+    df["Business.time"] = 0
+    df["Business.time"] = df["Business.time"].astype(int)
 
     # start_pkt 이 아닌 열 지우기
     idx_start_pkt = df[df["Start Packet"] == 0].index
@@ -120,26 +122,27 @@ def data_read(file_name):
     df["count_connect_IP"] = 0
 
     idx_ftp = df[df["Destination Port"] == 21].index
-    df["LABEL"][idx_ftp] = "FTP"
+    df["LABEL"][idx_ftp] = "ftp"
     idx_ssh = df[df["Destination Port"] == 22].index
-    df["LABEL"][idx_ssh] = "SSH"
+    df["LABEL"][idx_ssh] = "ssh"
     idx_telnet = df[df["Destination Port"] == 23].index
-    df["LABEL"][idx_telnet] = "TELNET"
+    df["LABEL"][idx_telnet] = "telnet"
     idx_smtp = df[df["Destination Port"] == 25].index
-    df["LABEL"][idx_smtp] = "SMTP"
+    df["LABEL"][idx_smtp] = "smtp"
     idx_dns = df[df["Destination Port"] == 53].index
-    df["LABEL"][idx_dns] = "DNS"
-    idx_http = df[df["Destination Port"] == 80].index
-    df["LABEL"][idx_http] = "HTTP"
+    df["LABEL"][idx_dns] = "dns"
+    idx_HTTP = df[df["Destination Port"] == 80].index
+    df["LABEL"][idx_HTTP] = "web"
     idx_ntp = df[df["Destination Port"] == 123].index
-    df["LABEL"][idx_ntp] = "NTP"
+    df["LABEL"][idx_ntp] = "ntp"
     idx_https = df[df["Destination Port"] == 443].index
-    df["LABEL"][idx_https] = "HTTPS"
+    df["LABEL"][idx_https] = "web"
     idx_rdp = df[df["Destination Port"] == 3389].index
-    df["LABEL"][idx_rdp] = "RDP"
+    df["LABEL"][idx_rdp] = "rdp"
 
     df.to_csv("session_output_without_ip_count.csv")
     df = df.dropna(axis=0)  ## 결측행 삭제
+
 
 
     ### 목적지,출발지 접속 카운트 ###
@@ -195,7 +198,8 @@ def data_read(file_name):
         df["log_count_total_connect"][i] = round(math.log2(k5), 2)
         df["log_avg_count_connect"][i] = round(math.log10(k6), 2)
         df["log_transmit_speed_BPS"][i] = round(math.log2(k7 + 1), 2)
-
+        if (df["Time"][i] > 25200) and (df["Time"][i] <= 68400):
+            df["Business.time"][i] = 1
     return df
 
 
