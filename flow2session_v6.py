@@ -162,9 +162,6 @@ def data_read(file_name):
         for j in range(count_connect_ip_length):
             if count_connect_ip["Destination"][j] == df["Destination"][i]:
                 df["count_connect_IP"][i] = count_connect_ip["Count"][j]
-                break
-        for j in range(count_total_connect_length):
-            if count_total_connect["Destination"][j] == df["Destination"][i]:
                 df["count_total_connect"][i] = count_total_connect["Count"][j]
                 break
 
