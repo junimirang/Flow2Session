@@ -149,7 +149,7 @@ def data_read(file_name):
     # https://nittaku.tistory.com/131
     # https://rfriend.tistory.com/456
     count_ip = df.groupby([df["Destination"], df["Source"]]).count()
-    count_ip = count_ip.reset_index().rename(columns={"index": "Count"})
+    count_ip = count_ip.reset_index().rename(columns={"Time": "Count"})
     count_ip = count_ip[["Destination", "Source", "Count"]]
 
     count_total_connect = count_ip.groupby("Destination")["Count"].sum()
