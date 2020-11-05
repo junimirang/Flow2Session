@@ -180,7 +180,6 @@ def data_read(file_name):
     idx_miss = df[df["Duration"] == 0.0].index
     df = df.drop(idx_miss)
     df = df.reset_index()  ## 행번호 추가
-    del df["index"], df["Unnamed: 0"]
     total_length = len(df["Info"])
 
     for i in range(total_length):
