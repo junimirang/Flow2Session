@@ -205,13 +205,13 @@ def data_read(file_name):
     return df
 
 def normalization():
-    df["log_time_taken_norm"] = 100*(df["log_time_taken"]-min(df["log_time_taken"]))/(max(df["log_time_taken"])-min(df["log_time_taken"]))
-    df["log_cs_byte_norm"] = 100*(df["log_cs_byte"] - min(df["log_cs_byte"])) / (max(df["log_cs_byte"]) - min(df["log_cs_byte"]))
-    df["log_ratio_trans_receive_norm"] = 100*(df["log_ratio_trans_receive"] - min(df["log_ratio_trans_receive"])) / (max(df["log_ratio_trans_receive"]) - min(df["log_ratio_trans_receive"]))
-    df["log_count_connect_IP_norm"] = 100*(df["log_count_connect_IP"] - min(df["log_count_connect_IP"]))/ (max(df["log_count_connect_IP"]) - min(df["log_count_connect_IP"]))
-    df["log_count_total_connect_norm"] = 100*(df["log_count_total_connect"] - min(df["log_count_total_connect"]))/ (max(df["log_count_total_connect"]) - min(df["log_count_total_connect"]))
-    df["log_avg_count_connect_norm"] = 100*(df["log_avg_count_connect"] - min(df["log_avg_count_connect"]))/ (max(df["log_avg_count_connect"]) - min(df["log_avg_count_connect"]))
-    df["log_transmit_speed_BPS_norm"] = 100*(df["log_transmit_speed_BPS"] - min(df["log_transmit_speed_BPS"]))/ (max(df["log_transmit_speed_BPS"]) - min(df["log_transmit_speed_BPS"]))
+    df["log_time_taken"] = 100*(df["log_time_taken"]-min(df["log_time_taken"]))/(max(df["log_time_taken"])-min(df["log_time_taken"]))
+    df["log_cs_byte"] = 100*(df["log_cs_byte"] - min(df["log_cs_byte"])) / (max(df["log_cs_byte"]) - min(df["log_cs_byte"]))
+    df["log_ratio_trans_receive"] = 100*(df["log_ratio_trans_receive"] - min(df["log_ratio_trans_receive"])) / (max(df["log_ratio_trans_receive"]) - min(df["log_ratio_trans_receive"]))
+    df["log_count_connect_IP"] = 100*(df["log_count_connect_IP"] - min(df["log_count_connect_IP"]))/ (max(df["log_count_connect_IP"]) - min(df["log_count_connect_IP"]))
+    df["log_count_total_connect"] = 100*(df["log_count_total_connect"] - min(df["log_count_total_connect"]))/ (max(df["log_count_total_connect"]) - min(df["log_count_total_connect"]))
+    df["log_avg_count_connect"] = 100*(df["log_avg_count_connect"] - min(df["log_avg_count_connect"]))/ (max(df["log_avg_count_connect"]) - min(df["log_avg_count_connect"]))
+    df["log_transmit_speed_BPS"] = 100*(df["log_transmit_speed_BPS"] - min(df["log_transmit_speed_BPS"]))/ (max(df["log_transmit_speed_BPS"]) - min(df["log_transmit_speed_BPS"]))
     retrun df
 
 
