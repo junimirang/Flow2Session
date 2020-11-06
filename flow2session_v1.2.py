@@ -113,9 +113,12 @@ def data_read(file_name):
     # start_pkt 이 아닌 열 지우기
     idx_start_pkt = df[df["Start Packet"] == 0].index
     df = df.drop(idx_start_pkt)
+    idx_miss_receive = df[df["Receive Byte"] == 0.0].index
+    df = df.drop(idx_miss_receive)
     df = df.reset_index()  ## 행번호 추가
     del df["index"]
     df["ratio_trans_receive"] = df["Send Byte"] / df["Receive Byte"]
+
     df["LABEL"] = "UNKNOWN"
     dst_port = df[["Destination Port"]]
     df["count_total_connect"] = 0
@@ -202,7 +205,14 @@ def data_read(file_name):
     return df
 
 def normalization():
-
+    df["log_time_taken_norm"] = 100*(df["log_time_taken"]-min(df["log_time_taken"]))/(max(df["log_time_taken"])-min(df["log_time_taken"]))
+    df["log_cs_byte_norm"] = 100*(df["log_cs_byte"] - min(df["log_cs_byte"])) / (max(df["log_cs_byte"]) - min(df["log_cs_byte"]))
+    df["log_ratio_trans_receive_norm"] = 100*(df["log_ratio_trans_receive"] - min(df["log_ratio_trans_receive"])) / (max(df["log_ratio_trans_receive"]) - min(df["log_ratio_trans_receive"]))
+    df["log_count_connect_IP_norm"] = 100*(df["log_count_connect_IP"] - min(df["log_count_connect_IP"]))/ (max(df["log_count_connect_IP"]) - min(df["log_count_connect_IP"]))
+    df["log_count_total_connect_norm"] = 100*(df["log_count_total_connect"] - min(df["log_count_total_connect"]))/ (max(df["log_count_total_connect"]) - min(df["log_count_total_connect"]))
+    df["log_avg_count_connect_norm"] = 100*(df["log_avg_count_connect"] - min(df["log_avg_count_connect"]))/ (max(df["log_avg_count_connect"]) - min(df["log_avg_count_connect"]))
+    df["log_transmit_speed_BPS_norm"] = 100*(df["log_transmit_speed_BPS"] - min(df["log_transmit_speed_BPS"]))/ (max(df["log_transmit_speed_BPS"]) - min(df["log_transmit_speed_BPS"]))
+    retrun df
 
 
 if __name__ == '__main__':
