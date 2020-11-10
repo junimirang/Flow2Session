@@ -204,7 +204,7 @@ def data_read(file_name):
             df["Business.time"][i] = 1
     return df
 
-def normalization():
+def normalization(df):
     df["log_time_taken"] = 100*(df["log_time_taken"]-min(df["log_time_taken"]))/(max(df["log_time_taken"])-min(df["log_time_taken"]))
     df["log_cs_byte"] = 100*(df["log_cs_byte"] - min(df["log_cs_byte"])) / (max(df["log_cs_byte"]) - min(df["log_cs_byte"]))
     df["log_ratio_trans_receive"] = 100*(df["log_ratio_trans_receive"] - min(df["log_ratio_trans_receive"])) / (max(df["log_ratio_trans_receive"]) - min(df["log_ratio_trans_receive"]))
