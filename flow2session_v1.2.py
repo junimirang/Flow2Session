@@ -212,7 +212,7 @@ def normalization(df):
     df["log_count_total_connect"] = 100*(df["log_count_total_connect"] - min(df["log_count_total_connect"]))/ (max(df["log_count_total_connect"]) - min(df["log_count_total_connect"]))
     df["log_avg_count_connect"] = 100*(df["log_avg_count_connect"] - min(df["log_avg_count_connect"]))/ (max(df["log_avg_count_connect"]) - min(df["log_avg_count_connect"]))
     df["log_transmit_speed_BPS"] = 100*(df["log_transmit_speed_BPS"] - min(df["log_transmit_speed_BPS"]))/ (max(df["log_transmit_speed_BPS"]) - min(df["log_transmit_speed_BPS"]))
-    retrun df
+    return df
 
 
 if __name__ == '__main__':
