@@ -11,8 +11,6 @@ def assemble(df_syn, df):
     df_length = len(df)
     df_syn_length = len(df_syn)
     while n < df_syn_length:
-        # if n == 2:
-        #     print("hello")
         print("This Counts:", n, "/", df_syn_length)
         stop_bit = 0
         fin_point = 0
@@ -23,11 +21,11 @@ def assemble(df_syn, df):
         start_time = df_syn["Time"][n]
         end_time = start_time
 
-        ## asseble for문 시작
+        ## packet assembling ##
         for i in range(start_point, df_length):
             check_time = df["Time"][i]
 
-            ## 비정상 통신 종료 확인 ##
+            ## when detecting the abnormal packet, assembling is stopped ##
             if ((stop_bit == 1) and (i > fin_point + 1000)): ## FIN에 대한 ACK이 없을 경우 종료
                 break
             if ((i == start_point + 1000) and (num_packet == 0)):  ## SYN 이후 SYN, ACK  없는 경우 종료
@@ -98,7 +96,7 @@ def data_read(file_name):
     df = df[(df["Protocol"] == "TCP") | (df["Protocol"] == "SMTP") | (df["Protocol"] == "SMTP/IMF") | (
                 df["Protocol"] == "HTTP") | (df["Protocol"] == "FTP") | (df["Protocol"] == "FTP-DATA") | (
                         df["Protocol"] == "TELNET") | (df["Protocol"] == "POP") | (df["Protocol"] == "SSHv1")]
-    df = df.reset_index()  ## 인덱스 초기
+    df = df.reset_index()  ## dataframe index intializtion
     del df["index"], df["No."]
 
     df["Source Port"] = df["Source Port"].astype('int')
