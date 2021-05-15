@@ -271,7 +271,20 @@ if __name__ == '__main__':
         df3.to_csv("test4.0/"+directory+"session_output_wed.csv")
         df4.to_csv("test4.0/"+directory+"session_output_thu.csv")
         df5.to_csv("test4.0/"+directory+"session_output_fri.csv")
+        
+    # data concate
+    df1 = pd.read_csv("test4.0/"+directory+"session_output_mon.csv")
+    df2 = pd.read_csv("test4.0/"+directory+"session_output_tue.csv")
+    df3 = pd.read_csv("test4.0/"+directory+"session_output_wed.csv")
+    df4 = pd.read_csv("test4.0/"+directory+"session_output_thu.csv")
+    df5 = pd.read_csv("test4.0/"+directory+"session_output_fri.csv")
+    df = pd.concat([df1, df2, df3, df4, df5], ignore_index=True)
+    df = src_ip_count(df)
+    df = normalization(df)
+    df.to_csv("test4.0/"+directory+"session_output_concat_normalized.csv")
 
+    
+    
     with Pool(6) as p:
         directory = "week3/"
         filename1 = directory+"mon.csv"
@@ -286,25 +299,6 @@ if __name__ == '__main__':
         df3.to_csv("test4.0/"+directory+"session_output_wed.csv")
         df4.to_csv("test4.0/"+directory+"session_output_thu.csv")
         df5.to_csv("test4.0/"+directory+"session_output_fri.csv")
-
-    # directory = "week4/"
-    # filename1 = "week1/mon.csv"
-    # filename2 = "week1/tue.csv"
-    # filename3 = "week1/wed.csv"
-    # filename4 = "week1/thu.csv"
-    # filename5 = directory+"fri.csv"
-    #
-    # df1 = data_read(filename1)
-    # df2 = data_read(filename2)
-    # df3 = data_read(filename3)
-    # df4 = data_read(filename4)
-    # df5 = data_read(filename5)
-    #
-    # df1.to_csv("test4.0/week4/session_output_mon.csv")
-    # df2.to_csv("test4.0/week4/session_output_tue.csv")
-    # df3.to_csv("test4.0/week4/session_output_wed.csv")
-    # df4.to_csv("test4.0/week4/session_output_thu.csv")
-    # df5.to_csv("test4.0/week4/session_output_fri.csv")
 
     # data concate
     df1 = pd.read_csv("test4.0/"+directory+"session_output_mon.csv")
